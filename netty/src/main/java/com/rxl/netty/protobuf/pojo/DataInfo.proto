@@ -1,0 +1,37 @@
+//版本
+syntax = "proto3";
+//加快解析
+option optimize_for=SPEED;
+//解析文件存放路径
+option java_package="com.rxl.netty.protobuf.pojo";
+//Java类文件名
+option java_outer_classname="DataInfo";
+
+//使用一个message管理其他的message，达到同时兼容多个对象传输
+message MessageInfo{
+  enum DataType{
+    //proto3要求，枚举下标从0开始
+      CarInfoType = 0;
+      UserInfoType = 1;
+  }
+  //使用DataType表示改传输数据的类型
+    DataType data_type = 1;
+
+  //每次的枚举类型只能出现一次，节省空间减少传输开销提高速度
+  oneof dataBody{
+      CarInfo carInfo = 2;
+      UserInfo userInfo = 3;
+  }
+
+}
+
+message CarInfo{
+  //carinfo类的属性，1,2表示是当前参数是第几个
+  string brand = 1;
+  int32 price = 2;
+}
+
+message UserInfo{
+  int32 age = 1;
+  string name = 2;
+}

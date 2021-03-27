@@ -1,14 +1,12 @@
-package com.rxl.netty.netty;
+package com.rxl.netty.protobuf;
 
+import com.rxl.netty.protobuf.pojo.DataInfo;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
-
-import java.util.concurrent.TimeUnit;
+import io.netty.handler.codec.protobuf.ProtobufDecoder;
 
 /**
  * ClassName: NettyServer
@@ -46,8 +44,10 @@ public class NettyServer {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             //空闲连接处理机制 读空闲 写空闲 读写空闲 事件单位 并在后面跟上自己需要处理空连接逻辑的handler
-                            socketChannel.pipeline().addLast(new IdleStateHandler(5,10,60, TimeUnit.SECONDS));
-                            socketChannel.pipeline().addLast(new MyHeartbeatHandler());
+                          /*  socketChannel.pipeline().addLast(new IdleStateHandler(5,10,60, TimeUnit.SECONDS));
+                            socketChannel.pipeline().addLast(new MyHeartbeatHandler());*/
+                            //加入谷歌proto解码，并指定需要解码的对象
+                            socketChannel.pipeline().addLast(new ProtobufDecoder(DataInfo.MessageInfo.getDefaultInstance()));
                             //绑定自定义通道处理器 按照这里的先后顺序处理 pipeline是管道
                             socketChannel.pipeline().addLast(new NettyServerHandler());
                         }
