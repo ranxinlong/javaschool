@@ -27,7 +27,15 @@ public class NettyClientHandler extends SimpleChannelInboundHandler {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        int anInt = new Random().nextInt(2);
+
+        for (int a = 0 ; a <= 10 ; a++){
+            DataInfo.MessageInfo messageInfo = DataInfo.MessageInfo.newBuilder().setDataType(DataInfo.MessageInfo.DataType.CarInfoType)
+                    .setCarInfo(DataInfo.CarInfo.newBuilder().setBrand("GTR" + a).setPrice(999999).build()).build();
+            ctx.writeAndFlush(messageInfo);
+        }
+
+
+        /*int anInt = new Random().nextInt(2);
         DataInfo.MessageInfo messageInfo = null;
         if (0 == anInt) {
             //发送CarInfo对象
@@ -38,7 +46,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler {
             messageInfo = DataInfo.MessageInfo.newBuilder().setDataType(DataInfo.MessageInfo.DataType.UserInfoType)
                     .setUserInfo(DataInfo.UserInfo.newBuilder().setAge(24).setName("老王").build()).build();
         }
-        ctx.writeAndFlush(messageInfo);
+        ctx.writeAndFlush(messageInfo);*/
     }
 
     @Override

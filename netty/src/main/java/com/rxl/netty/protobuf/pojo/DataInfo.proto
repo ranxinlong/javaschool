@@ -9,6 +9,7 @@ option java_outer_classname="DataInfo";
 
 //使用一个message管理其他的message，达到同时兼容多个对象传输
 message MessageInfo{
+
   enum DataType{
     //proto3要求，枚举下标从0开始
       CarInfoType = 0;

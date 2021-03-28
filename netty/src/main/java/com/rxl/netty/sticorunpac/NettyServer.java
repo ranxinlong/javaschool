@@ -1,4 +1,4 @@
-package com.rxl.netty.netty;
+package com.rxl.netty.sticorunpac;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * ClassName: NettyServer
  * Description: NettyServer service impl
- *
+ *  自定义数据协议解决 TCP粘包拆包问题
  * @author ranxinlong@cirdb.cn
  * @version 1.0.0
  * @date 2021/03/24
@@ -44,11 +44,15 @@ public class NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
+                            ChannelPipeline pipeline = socketChannel.pipeline();
                             //空闲连接处理机制 读空闲 写空闲 读写空闲 事件单位 并在后面跟上自己需要处理空连接逻辑的handler
-                            socketChannel.pipeline().addLast(new IdleStateHandler(5,10,60, TimeUnit.SECONDS));
-                            socketChannel.pipeline().addLast(new MyHeartbeatHandler());
+                            pipeline.addLast(new IdleStateHandler(5,10,60, TimeUnit.SECONDS));
+                            pipeline.addLast(new MyHeartbeatHandler());
+                            //绑定自定义的编解码器
+                            pipeline.addLast(new MyMessageDecoder());
+                            pipeline.addLast(new MyMessageEncoder());
                             //绑定自定义通道处理器 按照这里的先后顺序处理 pipeline是管道
-                            socketChannel.pipeline().addLast(new NettyServerHandler());
+                            pipeline.addLast(new NettyServerHandler());
                         }
                     });
             //绑定端口并同步

@@ -7,6 +7,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;
+import io.netty.handler.codec.protobuf.ProtobufEncoder;
+import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
+import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 
 /**
  * ClassName: NettyServer
@@ -46,8 +49,13 @@ public class NettyServer {
                             //空闲连接处理机制 读空闲 写空闲 读写空闲 事件单位 并在后面跟上自己需要处理空连接逻辑的handler
                           /*  socketChannel.pipeline().addLast(new IdleStateHandler(5,10,60, TimeUnit.SECONDS));
                             socketChannel.pipeline().addLast(new MyHeartbeatHandler());*/
+                            //解码时解决粘包拆包
+                            socketChannel.pipeline().addLast(new ProtobufVarint32FrameDecoder());
                             //加入谷歌proto解码，并指定需要解码的对象
                             socketChannel.pipeline().addLast(new ProtobufDecoder(DataInfo.MessageInfo.getDefaultInstance()));
+                            //编码时解决粘包拆包
+                            socketChannel.pipeline().addLast(new ProtobufVarint32LengthFieldPrepender());
+                            socketChannel.pipeline().addLast(new ProtobufEncoder());
                             //绑定自定义通道处理器 按照这里的先后顺序处理 pipeline是管道
                             socketChannel.pipeline().addLast(new NettyServerHandler());
                         }

@@ -1,19 +1,11 @@
-package com.rxl.netty.protobuf;
+package com.rxl.netty.sticorunpac;
 
-import com.rxl.netty.protobuf.pojo.DataInfo;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.protobuf.ProtobufDecoder;
-import io.netty.handler.codec.protobuf.ProtobufEncoder;
-import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
-import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import io.netty.util.CharsetUtil;
 
 import java.net.InetSocketAddress;
@@ -47,15 +39,10 @@ public class NettyClient {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            //解码时解决粘包拆包
-                            socketChannel.pipeline().addLast(new ProtobufVarint32FrameDecoder());
-                            //加入谷歌proto解码，并指定需要解码的对象
-                            socketChannel.pipeline().addLast(new ProtobufDecoder(DataInfo.MessageInfo.getDefaultInstance()));
-                            //编码时解决粘包拆包
-                            socketChannel.pipeline().addLast(new ProtobufVarint32LengthFieldPrepender());
-                            //客户端加入ProtobufEncoder处理谷歌proto
-                            socketChannel.pipeline().addLast(new ProtobufEncoder());
-                            socketChannel.pipeline().addLast(new NettyClientHandler());
+                            ChannelPipeline pipeline = socketChannel.pipeline();
+                            pipeline.addLast(new MyMessageDecoder());
+                            pipeline.addLast(new MyMessageEncoder());
+                            pipeline.addLast(new NettyClientHandler());
                         }
                     });
             ChannelFuture sync = bootstrap.connect(new InetSocketAddress(ip, port)).sync();
